@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Node / Web Frontend
+node_modules/
+dist-web/
+.vite/
+
+# Captures & Local Data
+captures/
+*.db
+*.sqlite3
+.env
+config.local.json
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
