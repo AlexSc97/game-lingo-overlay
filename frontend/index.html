@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Lingo Overlay - Hollow Knight Interactive Translator</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="theme-void">
+  <div class="overlay-container" id="overlayContainer">
+    
+    <!-- Top Action & Status Bar -->
+    <header class="overlay-header">
+      <div class="brand">
+        <span class="brand-icon">🗡️</span>
+        <span class="brand-title">GAME LINGO</span>
+        <span class="theme-badge" id="themeBadge">VOID</span>
+      </div>
+
+      <div class="status-indicator" id="statusIndicator">
+        <span class="status-dot"></span>
+        <span class="status-text">Conectado</span>
+      </div>
+
+      <div class="header-controls">
+        <button class="btn btn-primary" id="btnCapture" title="Capturar zona de diálogo actual (Atajo: Espacio o Alt+T)">
+          📸 Capturar
+        </button>
+        <button class="btn btn-secondary" id="btnAutoToggle" title="Activar/desactivar auto-detección">
+          ⏱️ Auto: <span id="autoStatus">OFF</span>
+        </button>
+        <button class="btn btn-icon" id="btnSettings" title="Configurar Región y Opciones">
+          ⚙️
+        </button>
+        <button class="btn btn-icon" id="btnLexicon" title="Ver Hunter's Lexicon (Vocabulario)">
+          📖
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Learning Card -->
+    <main class="learning-card" id="learningCard">
+      <!-- Section A: Original Game Text (Interactive Tokens) -->
+      <div class="card-section original-section">
+        <div class="section-tag">
+          <span>ORIGINAL (ENGLISH)</span>
+          <span class="subtag">Pasa el cursor o haz clic en cualquier palabra</span>
+        </div>
+        
+        <div class="interactive-tokens" id="tokensContainer">
+          <!-- Populated dynamically via JS -->
+          <span class="placeholder-text">Presiona <strong>📸 Capturar</strong> o prueba una frase de ejemplo abajo...</span>
+        </div>
+      </div>
+
+      <!-- Section B: Full Translation (Active Learning / Spoiler-Free Blur) -->
+      <div class="card-section translation-section">
+        <div class="section-header-reveal">
+          <span class="section-tag">TRADUCCIÓN COMPLETA</span>
+          <button class="btn-reveal-toggle" id="btnToggleReveal">
+            👁️ <span id="revealLabel">Mostrar traducción</span>
+          </button>
+        </div>
+
+        <div class="translation-box blurred" id="translationBox" title="Haz clic para revelar/ocultar">
+          <p id="fullTranslationText">La traducción completa aparecerá aquí. Haz clic para revelarla si la necesitas.</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Floating Word Tooltip -->
+    <div class="word-tooltip" id="wordTooltip" style="display: none;">
+      <div class="tooltip-header">
+        <span class="tooltip-word" id="tooltipWord">word</span>
+        <button class="btn-tts" id="btnTts" title="Escuchar pronunciación en inglés">🔊</button>
+      </div>
+      <div class="tooltip-translation" id="tooltipTranslation">significado</div>
+      <div class="tooltip-actions">
+        <button class="btn-save-word" id="btnSaveWord">⭐ Guardar en Lexicon</button>
+      </div>
+    </div>
+
+    <!-- Quick Test / Game Quote Presets Bar -->
+    <footer class="presets-bar">
+      <span class="presets-label">⚔️ Frases de Hollow Knight:</span>
+      <div class="preset-chips">
+        <button class="preset-chip" data-quote="Higher beings, these words are for you alone.">
+          "Higher beings, these words..."
+        </button>
+        <button class="preset-chip" data-quote="No mind to think. No will to break. No voice to cry suffering.">
+          "No mind to think..."
+        </button>
+        <button class="preset-chip" data-quote="Born of God and Void. You shall seal the blinding light that plagues their dreams.">
+          "Born of God and Void..."
+        </button>
+        <button class="preset-chip" data-quote="My needle is sharp, little ghost. Care to dance?">
+          "My needle is sharp..."
+        </button>
+      </div>
+    </footer>
+
+    <!-- Settings Modal / Drawer -->
+    <div class="modal-backdrop" id="settingsModal" style="display: none;">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3>⚙️ Configuración & Región de Pantalla</h3>
+          <button class="btn-close" id="btnCloseSettings">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="setting-group">
+            <label>Tema Visual:</label>
+            <div class="theme-selector">
+              <button class="theme-btn active" data-theme="void">Void (Hollow Knight)</button>
+              <button class="theme-btn" data-theme="dark-glass">Dark Glass</button>
+              <button class="theme-btn" data-theme="high-contrast">High Contrast</button>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label>Preajuste de Región para Hollow Knight:</label>
+            <div class="preset-regions">
+              <button class="btn-region-preset" data-preset="top">Zona Superior (Diálogos Lore)</button>
+              <button class="btn-region-preset" data-preset="bottom">Zona Inferior (NPCs y Bancos)</button>
+              <button class="btn-region-preset" data-preset="center">Zona Central</button>
+            </div>
+          </div>
+
+          <div class="setting-group coordinates-grid">
+            <div>
+              <label>X (Left):</label>
+              <input type="number" id="inputLeft" value="400">
+            </div>
+            <div>
+              <label>Y (Top):</label>
+              <input type="number" id="inputTop" value="700">
+            </div>
+            <div>
+              <label>Ancho (Width):</label>
+              <input type="number" id="inputWidth" value="1120">
+            </div>
+            <div>
+              <label>Alto (Height):</label>
+              <input type="number" id="inputHeight" value="260">
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <label>Opacidad del Overlay: <span id="opacityValue">92%</span></label>
+            <input type="range" id="inputOpacity" min="40" max="100" value="92">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" id="btnSaveSettings">Guardar Configuración</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Hunter's Lexicon (Saved Vocabulary Modal) -->
+    <div class="modal-backdrop" id="lexiconModal" style="display: none;">
+      <div class="modal-dialog lexicon-dialog">
+        <div class="modal-header">
+          <h3>📖 Hunter's Lexicon (Vocabulario Aprendido)</h3>
+          <button class="btn-close" id="btnCloseLexicon">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="lexicon-stats">
+            <span>Palabras registradas: <strong id="lexiconCount">0</strong></span>
+            <input type="text" id="lexiconSearch" placeholder="Buscar palabra...">
+          </div>
+          <div class="lexicon-list" id="lexiconList">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
